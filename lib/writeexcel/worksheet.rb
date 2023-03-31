@@ -672,7 +672,7 @@ class Worksheet < BIFFWriter
   #
   def set_column(*args)
     # Check for a cell reference in A1 notation and substitute row and column
-    if args[0] =~ /^\D/
+    if args[0].to_s =~ /^\D/
       row1, firstcol, row2, lastcol, *data = substitute_cellref(*args)
     else
       firstcol, lastcol, *data = args
@@ -1211,7 +1211,7 @@ class Worksheet < BIFFWriter
 
     # Check for a column reference in A1 notation and substitute.
     # Convert col ref to a cell ref and then to a col number.
-    dummy, col = substitute_cellref("#{col}1") if col =~ /^\D/
+    dummy, col = substitute_cellref("#{col}1") if col.to_s =~ /^\D/
 
     # Reject column if it is outside filter range.
     unless @filter_area.inside?(col)
@@ -1615,7 +1615,7 @@ class Worksheet < BIFFWriter
   #
   def repeat_columns(*args)
     # Check for a cell reference in A1 notation and substitute row and column
-    if args[0] =~ /^\D/
+    if args[0].to_s =~ /^\D/
       row1, firstcol, row2, lastcol = substitute_cellref(*args)
     else
       firstcol, lastcol = args
@@ -4821,7 +4821,7 @@ class Worksheet < BIFFWriter
     # Special handling of "Top" filter expressions.
     if tokens[0] =~ /^top|bottom$/i
       value = tokens[1]
-      if (value =~ /\D/ or value.to_i < 1 or value.to_i > 500)
+      if (value.to_s =~ /\D/ or value.to_i < 1 or value.to_i > 500)
         raise "The value '#{value}' in expression '#{expression}' " +
         "must be in the range 1 to 500"
       end
@@ -4850,7 +4850,7 @@ class Worksheet < BIFFWriter
     end
 
     # Special handling for Blanks/NonBlanks.
-    if (token =~ /^blanks|nonblanks$/i)
+    if (token.to_s =~ /^blanks|nonblanks$/i)
       # Only allow Equals or NotEqual in this context.
       if (operator != 2 and operator != 5)
         raise "The operator '#{tokens[1]}' in expression '#{expression}' " +
@@ -4876,7 +4876,7 @@ class Worksheet < BIFFWriter
 
     # if the string token contains an Excel match character then change the
     # operator type to indicate a non "simple" equality.
-    if (operator == 2 and token =~ /[*?]/)
+    if (operator == 2 and token.to_s =~ /[*?]/)
       operator = 22
     end
 
@@ -4940,21 +4940,21 @@ class Worksheet < BIFFWriter
 
     # Convert a column range: 'A:A' or 'B:G'.
     # A range such as A:A is equivalent to A1:65536, so add rows as required
-    if cell =~ /\$?([A-I]?[A-Z]):\$?([A-I]?[A-Z])/
+    if cell.to_s =~ /\$?([A-I]?[A-Z]):\$?([A-I]?[A-Z])/
       row1, col1 =  cell_to_rowcol($1 +'1')
       row2, col2 =  cell_to_rowcol($2 +'65536')
       return [row1, col1, row2, col2, *args]
     end
 
     # Convert a cell range: 'A1:B7'
-    if cell =~ /\$?([A-I]?[A-Z]\$?\d+):\$?([A-I]?[A-Z]\$?\d+)/
+    if cell.to_s =~ /\$?([A-I]?[A-Z]\$?\d+):\$?([A-I]?[A-Z]\$?\d+)/
       row1, col1 =  cell_to_rowcol($1)
       row2, col2 =  cell_to_rowcol($2)
       return [row1, col1, row2, col2, *args]
     end
 
     # Convert a cell reference: 'A1' or 'AD2000'
-    if (cell =~ /\$?([A-I]?[A-Z]\$?\d+)/)
+    if (cell.to_s =~ /\$?([A-I]?[A-Z]\$?\d+)/)
       row1, col1 =  cell_to_rowcol($1)
       return [row1, col1, *args]
 
@@ -4970,7 +4970,7 @@ class Worksheet < BIFFWriter
   # Returns: row, column
   #
   def cell_to_rowcol(cell)       #:nodoc:
-    cell =~ /\$?([A-I]?[A-Z])\$?(\d+)/
+    cell.to_s =~ /\$?([A-I]?[A-Z])\$?(\d+)/
     col     = $1
     row     = $2.to_i
 
@@ -6950,7 +6950,7 @@ class Worksheet < BIFFWriter
 
   # Check for a cell reference in A1 notation and substitute row and column
   def row_col_notation(args)   # :nodoc:
-    if args[0] =~ /^\D/
+    if args[0].to_s =~ /^\D/
       substitute_cellref(*args)
     else
       args
